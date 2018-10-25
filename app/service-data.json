@@ -1,0 +1,45 @@
+{
+    "serviceData": {
+        "__directCssIncludes": [],
+        "__directIncludes": [],
+        "activationTokenMaxDuration": 300,
+        "allowMultipleSessions": false,
+        "authGroups": [
+            {
+                "componentData": {
+                    "emails": "j.lawrence@lumavate.com",
+                    "title": "Super Admin"
+                },
+                "componentType": "passwordlessPatternGroup",
+                "displayName": "Email Pattern - Super Admin"
+            },
+            {
+                "componentData": {
+                    "emails": "*@lumavate.com",
+                    "title": "Admins"
+                },
+                "componentType": "passwordlessPatternGroup",
+                "displayName": "Email Pattern - Admins"
+            }
+        ],
+        "claimedTokenText": "This invitation has been claimed already.  Please contact the administrator to get a new invitation.",
+        "emailServiceUri": "/ic/email-service",
+        "emailTemplateId": "email-invitation",
+        "expiredTokenText": "Your invitation expired. Please click <a href=\"{{ renewLink }}\">here</a> to renew your invitation.",
+        "instance__name": "Magiclink",
+        "invalidTokenText": "Something went wrong with your invitation.  Please contact the administrator.",
+        "pageType": {
+            "componentData": {},
+            "componentType": "auth",
+            "displayName": "auth"
+        },
+        "sessionMaxDuration": 2592000,
+        "sessionSecurityKey": "bn1Sfr2IM93pnx4",
+        "tokenRenewed": "Your token has been renewed, and will be sent to your email."
+    },
+    "session": {
+        "lastIp": "104.137.209.245",
+        "magiclink": "gAAAAABbtjEHXiq75K0m2OeUR8cg-N0ui1aG_jGNFCaN6VUWJCoRmGcsL_AeoAyM7eWbGWPlS-7wsF0MAA_ZHJRcDpHy3nCnqprzaNXfmO2bmE2FCHO3v5vD1PT3kQrbY0KfYGwePSC0RvVio3pWpaBhWAA6pXrcuuBThBL0tZkVSSRJgnW-jdr64ztLQJu_Wggrm5Krls_cSuxQS-MP6XQ1FVnYdFovcMNFYeQ_TUMS7RNvHC2R4_EQfdiN70cLVlVoM1ns3oLO3tbdn18rDokYKmO1iiRboknbhExOa9cDoCfSh0leoZgFDpkbN-T_P7WUCk2aD6pWQTAdmYrcMObOrsEZkliiq5TVg3Qg9P0WbufvxV-MKhv7wuZEaR4iZHHFvGTuc6hS7SSq4R4WLWUr2oKWzON0xX-unkLYSFH1bGiYAbb3EjUrTPePNl07uFxdEdlLVlxsiEKLCAUIpzfbZbZM6ctNOkjzBy6kWY1jejY2nffNPMhUv2ApZLFljLkD3FWefOwxx8C6m-rl3DMrR-0bea716iHaeriR_7XB9KkU_oGrIvckgjj5El5E11-FcHeKJZhfgBlUdQxwKooh-EBfxVLSl_fC4l5-t_tD2giO--7tGZo="
+    },
+    "sutValid": false
+}

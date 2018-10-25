@@ -1,0 +1,69 @@
+from flask import g
+from lumavate_properties import Properties, Components
+from lumavate_service_util import LumavateMockRequest, set_lumavate_request_factory, DevMock
+from lumavate_token import AuthToken
+from behavior import Saml
+from app import db
+import json
+import time
+
+class DevMock(DevMock):
+  def get_auth_token(self):
+    t = super().get_auth_token()
+    t.auth_url = 'http://localhost:5002/'
+    t.session = 'abc123'
+    t.company_id = 1
+    return t
+
+  def get_session_data(self):
+    email = 'j.lawrence@lumavate.com'
+    ens = Saml().create_email_in_namespace(email)
+    db.session.commit()
+    userinfo = {
+      'email': email,
+      'session': 'abc123',
+      'emailNamespaceId': ens.id,
+      'sessionStart': time.time(),
+    }
+    sess_data = Saml().encrypt_user_info(userinfo)
+    sess_data.update(super().get_session_data())
+    return sess_data
+
+  def get_property_data(self):
+    sd = super().get_property_data()
+    sd = sd.set_property('loginPageLink', {'url': 'https://google.com'})
+    return sd.append_component(
+      'authGroups', 'samlPatternGroup',
+      {
+        'title': 'Super Admin',
+        'emails': 'j.lawrence@lumavate.com'
+      }
+    )
+    return sd
+
+  def get_auth_data(self):
+    return {
+      'roles': [
+        'Super Admin',
+        'Admins'
+      ],
+      'status': 'active',
+      'user': 'ic~saml|user|2'
+    }
+
+  def get_mock_func(self):
+    return self.make_request
+
+  def make_request(
+      self,
+      method,
+      path,
+      headers=None,
+      payload=None,
+      files=None,
+      raw=False,
+      timeout=None):
+    if path.startswith('/pwa/v1/session'):
+      return payload
+
+    return None
