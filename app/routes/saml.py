@@ -3,7 +3,7 @@ import requests
 import json
 import os
 from app import db
-from flask import session, abort
+from flask import session, abort, request
 from lumavate_service_util import browser_response, api_response, SecurityType
 from lumavate_properties import Properties, Components
 import models
@@ -28,10 +28,13 @@ def renew(integration_cloud, widget_type):
 def login(integration_cloud, widget_type):
   return Saml().login()
 
-@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/sso', methods=['POST'])
+@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/sso', methods=['POST', 'GET'])
 @browser_response
 def sso(integration_cloud, widget_type):
-  return Saml().sso()
+  if request.method == 'GET':
+    return Saml().login()
+  else:
+    return Saml().sso()
 
 @saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/status', methods=['GET'])
 @api_response(SecurityType.browser_origin)
