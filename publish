@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+echo "##################################"
+echo "##################################"
+echo "This script will build and publish and start new version of the SAML service under the urlref 'saml'"
+echo "Please enter the destination PROFILE....."
+luma profile ls
+read profile
+docker build -t saml:latest .
+luma microservice-version add --microservice saml --from-version "*.*.*" --patch --docker-image saml:latest --profile $profile | awk -v profileName="$profile" ' /'created'/ {system("luma microservice-version start --microservice saml --profile profileName --version " $1)}'

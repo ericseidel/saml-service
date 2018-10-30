@@ -135,7 +135,7 @@ class Saml(RestBehavior):
     }
 
     for k in authn_response.ava:
-      userdata['ava'] = authn_response.ava[k]
+      userdata['ava'][k] = authn_response.ava[k]
       if k.lower == 'email':
         email = authn_response.ava[k]
 
