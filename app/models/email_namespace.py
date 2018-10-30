@@ -1,3 +1,4 @@
+from lumavate_service_util import make_id
 from flask import g
 from app import db
 
@@ -19,7 +20,7 @@ class EmailNamespace(db.Model):
 
   def to_json(self):
     return {
-      'id': self.id,
+      'id': make_id(self.id, self.__class__),
       'email': self.name,
       'createdAt': self.created_at,
       'lastModifiedAt': self.last_modified_at

@@ -1,3 +1,4 @@
+from lumavate_service_util import make_id
 from flask import g
 from app import db
 
@@ -16,6 +17,6 @@ class Group(db.Model):
 
   def to_json(self):
     return {
-      'id': self.id,
+      'id': make_id(self.id, self.__class__),
       'name': self.name
     }

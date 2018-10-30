@@ -49,7 +49,7 @@ class DevMock(DevMock):
         'Admins'
       ],
       'status': 'active',
-      'user': 'ic~saml|user|1'
+      'user': 'ic~saml!user!1'
     }
 
   def get_mock_func(self):

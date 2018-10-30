@@ -7,7 +7,7 @@ import json
 import os
 from app import db
 from flask import session, abort
-from lumavate_service_util import browser_response, api_response, get_lumavate_request, RestBehavior
+from lumavate_service_util import browser_response, api_response, get_lumavate_request, RestBehavior, make_id
 from lumavate_properties import Properties, Components
 import models
 import uuid
@@ -210,14 +210,14 @@ class Saml(RestBehavior):
         roles.append(group['name'])
 
     return {
-        'user': os.environ.get('WIDGET_URL_PREFIX').strip('/').replace('/', '~') + '|user|' + str(ens.email_id),
+        'user': make_id(ens.email_id, 'user'),
         'roles': roles,
         'status': 'active',
         'additionalData': userinfo.get('userdata')
     }
 
   def status(self):
-    return jsonify(self.status_data())
+    return self.status_data()
 
   def show_status(self):
     return jsonify(self.status_data())

@@ -1,3 +1,4 @@
+from lumavate_service_util import make_id
 from flask import g
 from sqlalchemy.orm import backref
 from app import db
@@ -24,9 +25,9 @@ class GroupEmail(db.Model):
 
   def to_json(self):
     return {
-      'id': self.id,
+      'id': make_id(self.id, self.__class__),
       'email': self._email.email if self._email else None,
-      'userId': os.environ.get('WIDGET_URL_PREFIX').strip('/').replace('/', '~') + '|user|' + str(self.email_id),
+      'userId': make_id(self.id, 'user'),
       'group': self._group.name if self._group else None,
       'createdAt': self.created_at,
       'lastModifiedAt': self.last_modified_at
