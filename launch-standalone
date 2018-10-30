@@ -1,8 +1,9 @@
 DOCKER_IP=`ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'`
-docker run -d --rm \
+docker run --rm \
  --mount type=bind,source="$(pwd)"/app,destination=/app \
  --mount type=bind,source="$(pwd)"/../python-service-util,destination=/python_packages/lumavate_service_util \
 -e "DATABASE_URL=postgresql://postgres:scorpion6@$DOCKER_IP:5432/saml" \
+-e "DOCKER_IP=$DOCKER_IP" \
 -e "PUBLIC_KEY=public-key" \
 -e "PRIVATE_KEY=private-key" \
 -e "SERVICE_NAME=email-service" \
@@ -12,4 +13,4 @@ docker run -d --rm \
 -e "PROTO=https://" \
 --name=saml \
 -p 5005:5000 \
-saml:latest
+saml:latest gunicorn app:app -b 0.0.0.0:5000 --workers 1 --worker-class eventlet --reload

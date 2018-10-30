@@ -6,11 +6,12 @@ from behavior import Saml
 from app import db
 import json
 import time
+import os
 
 class DevMock(DevMock):
   def get_auth_token(self):
     t = super().get_auth_token()
-    t.auth_url = 'http://localhost:5002/'
+    t.auth_url = 'http://{}:5005/ic/saml/'.format(os.environ.get('DOCKER_IP'))
     t.session = 'abc123'
     t.company_id = 1
     return t
@@ -48,7 +49,7 @@ class DevMock(DevMock):
         'Admins'
       ],
       'status': 'active',
-      'user': 'ic~saml|user|2'
+      'user': 'ic~saml|user|1'
     }
 
   def get_mock_func(self):

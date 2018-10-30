@@ -127,8 +127,15 @@ class Saml(RestBehavior):
         entity.BINDING_HTTP_POST)
     authn_response.get_identity()
     user_info = authn_response.get_subject()
+
     email = user_info.text
+    userdata= {
+      'subject': email,
+      'ava': {}
+    }
+
     for k in authn_response.ava:
+      userdata['ava'] = authn_response.ava[k]
       if k.lower == 'email':
         email = authn_response.ava[k]
 
@@ -139,7 +146,8 @@ class Saml(RestBehavior):
       'email': email,
       'session': g.token_data['session'],
       'emailNamespaceId': ens.id,
-      'sessionStart': time.time()
+      'sessionStart': time.time(),
+      'userdata': userdata
     }
 
     get_lumavate_request().put('/pwa/v1/session', self.encrypt_user_info(userinfo))
@@ -148,9 +156,6 @@ class Saml(RestBehavior):
       return redirect(g.service_data.get('loginPageLink', {}).get('url'), 302)
     else:
       return redirect('https://' + request.host, 302)
-
-    return email
-    #return redirect('http://localhost:5005/ic/saml/l')
 
   def create_email_in_namespace(self, email_address):
     email = models.Email.query \
@@ -178,7 +183,12 @@ class Saml(RestBehavior):
       os.environ.get('SERVICE_NAME'): cipher_suite.encrypt(json.dumps(userinfo).encode('utf-8')).decode()
     }
 
-  def status(self):
+  def status_data(self):
+    if os.environ.get('DEV_MODE', 'False').lower() == 'true':
+      import dev_mock
+      from behavior import Saml
+      return jsonify(dev_mock.DevMock(self.properties).get_auth_data())
+
     data = g.session.get(os.environ.get('SERVICE_NAME'))
     if data is None:
       raise AuthorizationException('No Session')
@@ -202,8 +212,15 @@ class Saml(RestBehavior):
     return {
         'user': os.environ.get('WIDGET_URL_PREFIX').strip('/').replace('/', '~') + '|user|' + str(ens.email_id),
         'roles': roles,
-        'status': 'active'
+        'status': 'active',
+        'additionalData': userinfo.get('userdata')
     }
+
+  def status(self):
+    return jsonify(self.status_data())
+
+  def show_status(self):
+    return jsonify(self.status_data())
 
   def logout(self):
     sess_data = {

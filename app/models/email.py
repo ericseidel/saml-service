@@ -1,5 +1,6 @@
 from flask import g
 from app import db
+import os
 
 class Email(db.Model):
   id = db.Column(db.BigInteger, primary_key=True)
@@ -18,8 +19,8 @@ class Email(db.Model):
 
   def to_json(self):
     return {
-      'id': self.id,
-      'email': self.name,
+      'id': os.environ.get('WIDGET_URL_PREFIX').strip('/').replace('/', '~') + '|user|' + str(self.id),
+      'email': self.email,
       'createdAt': self.created_at,
       'lastModifiedAt': self.last_modified_at
     }

@@ -41,6 +41,11 @@ def sso(integration_cloud, widget_type):
 def status(integration_cloud, widget_type):
   return Saml().status()
 
+@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/showstatus', methods=['GET'])
+@browser_response
+def show_status(integration_cloud, widget_type):
+  return Saml().show_status()
+
 @saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/logout', methods=['POST'])
 @api_response(SecurityType.api_origin)
 def logout(integration_cloud, widget_type):
@@ -60,6 +65,11 @@ def properties(integration_cloud, widget_type):
 @api_response(SecurityType.api_origin)
 def get_groups(integration_cloud, widget_type):
   return Group().get_collection()
+
+@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/emails/<string:email>', methods=['GET'])
+@api_response(SecurityType.api_origin)
+def get_email(integration_cloud, widget_type, email):
+  return
 
 @saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/groups/<string:group>', methods=['GET'])
 @api_response(SecurityType.api_origin)
