@@ -1,7 +1,8 @@
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadTimeSignature
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql import text
 from jinja2 import Environment, BaseLoader
-from flask import Blueprint, jsonify, request, make_response, redirect, render_template, g, session, url_for
+from flask import Blueprint, jsonify, request, make_response, redirect, render_template, g, session, url_for, Response
 import requests
 import json
 import os
@@ -17,6 +18,8 @@ from lumavate_exceptions import ValidationException, AuthorizationException, Api
 from cryptography.fernet import Fernet
 import random
 import string
+import csv
+from io import StringIO
 
 from saml2 import (
     BINDING_HTTP_POST,
@@ -229,6 +232,106 @@ class Saml(RestBehavior):
 
     get_lumavate_request().put('/pwa/v1/session', sess_data)
     return {'status': 'Ok'}
+
+  def batch_get(self):
+    f = StringIO()
+    writer = csv.writer(f)
+    fields = ['email','id']
+
+    writer.writerow(fields)
+    rows = []
+    for email in models.Email.get_all().all():
+      rows.append([email.email, make_id(email.id, 'user')])
+
+    writer.writerows(rows)
+    response = Response(f.getvalue(), mimetype='text/csv')
+    response.headers['Content-Disposition'] = u'attachment; filename=example.csv'
+    return response
+
+  def batch_post(self):
+    sio = StringIO(request.get_data().decode('utf-8'))
+    reader = csv.DictReader(sio)
+
+    group_mapping = {x.name : x.id for x in models.Group.get_all().all()}
+    email_mapping = {}
+
+    row_data = []
+    values = {'org_id': g.org_id}
+    param_ct = 1
+
+    for row in reader:
+      if row['group'] not in group_mapping:
+        group = models.Group()
+        group.name = row['group']
+        group.org_id = 1
+        db.session.add(group)
+        db.session.flush()
+        group_mapping[group.name] = group.id
+
+      if row['email'] not in email_mapping:
+        email = models.Email.get_all().filter_by(email=row['email']).first()
+        if email is None:
+          email = models.Email()
+          email.org_id = g.token_data.get('orgId')
+          email.email = row['email']
+          db.session.add(email)
+          db.session.flush()
+
+        email_mapping[email.email] = email.id
+
+      email_parm = 'value{}'.format(param_ct)
+      param_ct = param_ct + 1
+      group_parm = 'value{}'.format(param_ct)
+      param_ct = param_ct + 1
+      values[email_parm] = email_mapping[row['email']]
+      values[group_parm] = group_mapping[row['group']]
+      row_data.append('select :{} as e, :{} as g\n'.format(email_parm, group_parm))
+
+    s = ' union '.join(row_data)
+    s = '''with insert_data as ({})
+insert into group_email (email_id, group_id, org_id)
+select e, g, :org_id from insert_data
+  where not exists(select 1 from group_email as ge
+    where ge.email_id = insert_data.e and ge.group_id = insert_data.g and ge.org_id = :org_id)'''.format(s)
+    r = db.session.connection().execute(text(s).bindparams(**values))
+    return {'recordsInserted': r.rowcount}
+
+  def batch_delete(self):
+    sio = StringIO(request.get_data().decode('utf-8'))
+    reader = csv.DictReader(sio)
+
+    group_mapping = {x.name : x.id for x in models.Group.get_all().all()}
+    email_mapping = {}
+    statements = []
+
+    for row in reader:
+      if row['email'] not in email_mapping:
+        email = models.Email.get_all().filter_by(email=row['email']).first()
+        if email is None:
+          email = models.Email()
+          email.org_id = g.token_data.get('orgId')
+          email.email = row['email']
+          db.session.add(email)
+          db.session.flush()
+
+        email_mapping[email.email] = email.id
+
+      if row['group'] not in group_mapping:
+        pass
+        #continue
+
+      values = {
+        'org':g.org_id,
+        'email':email_mapping[row['email']],
+        'group':group_mapping[row['group']]}
+
+      statements.append(text('delete from group_email where org_id=:org and email_id=:email and group_id=:group').bindparams(**values))
+
+    affected = 0
+    for s in statements:
+      affected += db.session.connection().execute(s).rowcount
+
+    return {'recordsDeleted': affected}
 
   def auth_groups(self):
     groups = []

@@ -36,6 +36,19 @@ def sso(integration_cloud, widget_type):
   else:
     return Saml().sso()
 
+@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/batch', methods=['POST', 'GET'])
+@api_response(SecurityType.browser_origin)
+def batch(integration_cloud, widget_type):
+  if request.method == 'POST':
+    return Saml().batch_post()
+  else:
+    return Saml().batch_get()
+
+@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/batch-delete', methods=['POST'])
+@api_response(SecurityType.browser_origin)
+def batch_delete(integration_cloud, widget_type):
+  return Saml().batch_delete()
+
 @saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/status', methods=['GET'])
 @api_response(SecurityType.browser_origin)
 def status(integration_cloud, widget_type):
