@@ -249,8 +249,7 @@ class Saml(RestBehavior):
     return response
 
   def batch_post(self):
-    sio = StringIO(request.get_data().decode('utf-8'))
-    reader = csv.DictReader(sio)
+    input = self.get_batch_import_content()
 
     group_mapping = {x.name : x.id for x in models.Group.get_all().all()}
     email_mapping = {}
@@ -259,7 +258,7 @@ class Saml(RestBehavior):
     values = {'org_id': g.org_id}
     param_ct = 1
 
-    for row in reader:
+    for row in input:
       if row['group'] not in group_mapping:
         group = models.Group()
         group.name = row['group']
@@ -297,14 +296,13 @@ select e, g, :org_id from insert_data
     return {'recordsInserted': r.rowcount}
 
   def batch_delete(self):
-    sio = StringIO(request.get_data().decode('utf-8'))
-    reader = csv.DictReader(sio)
+    input = self.get_batch_import_content()
 
     group_mapping = {x.name : x.id for x in models.Group.get_all().all()}
     email_mapping = {}
     statements = []
 
-    for row in reader:
+    for row in input:
       if row['email'] not in email_mapping:
         email = models.Email.get_all().filter_by(email=row['email']).first()
         if email is None:
