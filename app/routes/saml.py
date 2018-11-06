@@ -18,11 +18,6 @@ saml_blueprint = Blueprint('saml_blueprint', __name__)
 def root(integration_cloud, widget_type):
   return render_template('home.html', logo='/{}/{}/discover/icons/microservice.png'.format(integration_cloud, widget_type))
 
-@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/renew', methods=['GET'])
-@browser_response
-def renew(integration_cloud, widget_type):
-  return Saml().renew_token()
-
 @saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/login', methods=['GET'])
 @browser_response
 def login(integration_cloud, widget_type):
@@ -96,3 +91,18 @@ def manage_group(integration_cloud, widget_type, group, email):
     return GroupEmail().add_to_group(group, email)
   else:
     return GroupEmail().remove_from_group(group, email)
+
+@saml_blueprint.route('/<string:integration_cloud>/<string:widget_type>/discover/routes', methods=['GET'])
+def allowed_routes(integration_cloud, widget_type):
+  return jsonify([
+    {'path': '/login',        'security': 'none'},
+    {'path': '/sso',          'security': 'none'},
+    {'path': '/status',       'security': 'sut'},
+    {'path': '/logout',       'security': 'sut'},
+    {'path': '/showstatus',   'security': 'jwt'},
+    {'path': '/batch',        'security': 'signed'},
+    {'path': '/batch-delete', 'security': 'signed'},
+    {'path': '/emails/%',     'security': 'signed'},
+    {'path': '/groups/%',     'security': 'signed'},
+    {'path': '/groups/%/%',   'security': 'signed'}
+  ])
