@@ -30,10 +30,15 @@ class DevMock(DevMock):
     sess_data.update(super().get_session_data())
     return sess_data
 
+  def bootstrap_context(self):
+    super().bootstrap_context()
+    g.service_data = {'adminRole': ['Admins']}
+
   def get_property_data(self):
     sd = super().get_property_data()
     sd = sd.set_property('loginPageLink', {'url': 'https://google.com'})
-    return sd.append_component(
+    sd = sd.set_property('adminRole', ['Admins'])
+    sd = sd.append_component(
       'authGroups', 'samlPatternGroup',
       {
         'title': 'Super Admin',

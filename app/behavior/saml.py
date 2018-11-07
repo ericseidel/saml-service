@@ -20,6 +20,7 @@ import random
 import string
 import csv
 from io import StringIO
+from .saml_security_assertion import SamlSecurityAssertion
 
 from saml2 import (
     BINDING_HTTP_POST,
@@ -427,6 +428,19 @@ john@domain.com,bob@domain.com = only john@domain.com and bob@domain.com
       'Groups',
       'components',
       c.options([self.__get_email_pattern_component(), self.__get_email_list_component()]), []))
+
+    ################################
+    # Authentication
+    ################################
+
+    widget_props.append(Properties.Property(
+      'Authorization',
+      'Authorization Settings',
+      'adminRole',
+      'Email / Group Administration',
+      'multiselect',
+      options = SamlSecurityAssertion().get_all_auth_groups(),
+      default=[]))
 
     ################################
     # SAML

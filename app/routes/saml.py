@@ -1,6 +1,6 @@
 from lumavate_service_util import lumavate_route, SecurityType, RequestType
 from flask import request, render_template, g
-from behavior import Saml, GroupEmail, Group
+from behavior import Saml, GroupEmail, Group, SamlSecurityAssertion
 
 @lumavate_route('/discover/auth-groups', ['GET'], RequestType.system, [SecurityType.jwt])
 def auth_groups():
@@ -27,6 +27,7 @@ def sso():
 
 @lumavate_route('/batch', ['GET', 'POST'], RequestType.api, [SecurityType.sut, SecurityType.signed])
 def batch():
+  SamlSecurityAssertion().assert_has_role('admin')
   if request.method == 'POST':
     return Saml().batch_post()
   else:
@@ -34,6 +35,7 @@ def batch():
 
 @lumavate_route('/batch-delete', ['POST'], RequestType.api, [SecurityType.sut, SecurityType.signed])
 def batch_delete():
+  SamlSecurityAssertion().assert_has_role('admin')
   return Saml().batch_delete()
 
 @lumavate_route('/status', ['GET'], RequestType.api, [SecurityType.sut, SecurityType.signed])
@@ -58,6 +60,7 @@ def get_group_emails(group):
 
 @lumavate_route('/groups/<string:group>/<string:email>', ['POST', 'DELETE'], RequestType.api, [SecurityType.signed])
 def manage_group(group, email):
+  SamlSecurityAssertion().assert_has_role('admin')
   if request.method == 'POST':
     return GroupEmail().add_to_group(group, email)
   else:
