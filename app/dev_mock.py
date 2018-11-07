@@ -32,16 +32,16 @@ class DevMock(DevMock):
 
   def bootstrap_context(self):
     super().bootstrap_context()
-    g.service_data = {'adminRole': ['Admins']}
+    g.service_data = {'adminRole': ['Super Admins']}
 
   def get_property_data(self):
     sd = super().get_property_data()
     sd = sd.set_property('loginPageLink', {'url': 'https://google.com'})
-    sd = sd.set_property('adminRole', ['Admins'])
+    sd = sd.set_property('adminRole', ['Super Admins'])
     sd = sd.append_component(
       'authGroups', 'samlPatternGroup',
       {
-        'title': 'Super Admin',
+        'title': 'Super Admins',
         'emails': 'j.lawrence@lumavate.com'
       }
     )
@@ -50,8 +50,7 @@ class DevMock(DevMock):
   def get_auth_data(self):
     return {
       'roles': [
-        'Super Admin',
-        'Admins'
+        'Super Admins'
       ],
       'status': 'active',
       'user': 'ic~saml!user!1'
