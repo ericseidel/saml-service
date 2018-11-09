@@ -9,7 +9,8 @@ db = SQLAlchemy(app)
 rest_model_mapping = {}
 
 from routes import *
-from lumavate_service_util import icon_blueprint, lumavate_blueprint
+from lumavate_service_util import icon_blueprint, lumavate_blueprint, CustomEncoder
+app.json_encoder = CustomEncoder
 app.register_blueprint(icon_blueprint)
 app.register_blueprint(lumavate_blueprint)
 
