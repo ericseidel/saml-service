@@ -155,6 +155,8 @@ class Saml(RestBehavior):
     }
 
     get_lumavate_request().put('/pwa/v1/session', self.encrypt_user_info(userinfo))
+    if g.service_data['profileServiceUri'] is not None and g.service_data['profileServiceUri'].strip() != '':
+      get_lumavate_request().put(g.service_data['profileServiceUri'] + '/me', {'email': email})
 
     if g.service_data.get('loginPageLink') is not None:
       return redirect(g.service_data.get('loginPageLink', {}).get('url'), 302)
