@@ -1,10 +1,16 @@
-#!/bin/bash
-set -e
-echo "##################################"
-echo "##################################"
-echo "This script will build and publish and start new version of the SAML service under the urlref 'saml'"
-echo "Please enter the destination PROFILE....."
-luma profile ls
-read profile
-docker build -t saml:latest .
-luma microservice-version add --microservice saml --from-version "*.*.*" --patch --docker-image saml:latest --profile $profile | awk -v profileName="$profile" ' /'created'/ {system("luma microservice-version start --microservice saml --profile profileName --version " $1)}'
+profile=local-cc
+urlref=saml
+docker build --no-cache -t $urlref:latest .
+version=`luma microservice-version add --microservice $urlref --profile $profile --from-version "*.*.*" --patch --docker-image $urlref:latest --json | jq '.payload.data.id'`
+state=initial
+while [ "$state" != "stopped" ]
+do
+  sleep 5
+  state=`luma microservice-version ls --profile $profile --microservice $urlref --filter "id=$version" --json | jq -r '.payload.data[0] | .actualState'`
+done
+luma microservice-version start --microservice $urlref --profile $profile --version $version
+
+all=`luma microservice-version ls --json --microservice $urlref --filter "id=neq:$version" --profile $profile | jq '.payload.data[] | .id'`
+while read -r dv; do
+    luma microservice-version rm --microservice $urlref --profile $profile --version $dv
+done <<< "$all"
