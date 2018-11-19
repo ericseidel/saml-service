@@ -20,7 +20,7 @@ class GroupEmail(RestBehavior):
     if group is None:
       group = models.Group()
       group.name = group_name
-      group.org_id = 1
+      group.org_id = g.token_data.get('orgId')
       db.session.add(group)
 
     email = models.Email.get_all().filter_by(email=email_address).first()

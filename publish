@@ -1,5 +1,7 @@
-profile=local-cc
-urlref=saml
+echo "Environment:"
+read profile
+echo "UrlRef:"
+read urlref
 docker build --no-cache -t $urlref:latest .
 version=`luma microservice-version add --microservice $urlref --profile $profile --from-version "*.*.*" --patch --docker-image $urlref:latest --json | jq '.payload.data.id'`
 state=initial

@@ -140,8 +140,8 @@ class Saml(RestBehavior):
 
     for k in authn_response.ava:
       userdata['ava'][k] = authn_response.ava[k]
-      if k.lower == 'email':
-        email = authn_response.ava[k]
+      if k.lower() == 'email':
+        email = authn_response.ava[k][0]
 
     ens = self.create_email_in_namespace(email)
     db.session.commit()
@@ -159,7 +159,10 @@ class Saml(RestBehavior):
       get_lumavate_request().put(g.service_data['profileServiceUri'] + '/me', {'email': email})
 
     if g.service_data.get('loginPageLink') is not None:
-      return redirect(g.service_data.get('loginPageLink', {}).get('url'), 302)
+      url = g.service_data.get('loginPageLink', {}).get('url')
+      if not url.startswith('http'):
+        url = 'https://' + request.host + url
+      return redirect(url, 302)
     else:
       return redirect('https://' + request.host, 302)
 
@@ -265,7 +268,7 @@ class Saml(RestBehavior):
       if row['group'] not in group_mapping:
         group = models.Group()
         group.name = row['group']
-        group.org_id = 1
+        group.org_id = g.token_data.get('orgId')
         db.session.add(group)
         db.session.flush()
         group_mapping[group.name] = group.id
@@ -403,18 +406,6 @@ john@domain.com,bob@domain.com = only john@domain.com and bob@domain.com
 
     c.icon_url = icon
     return c
-
-  def __get_auth_groups(self):
-    groups = []
-    if g.token_data.get('authUrl') is not None:
-      try:
-        slug = '/'.join(g.token_data.get('authUrl').strip('/').split('/')[:2])
-        auth_group_url = 'https://{}/{}/discover/auth-groups'
-        groups = get_lumavate_request().get(auth_group_url.format(request.host, slug))
-      except ApiException:
-        pass
-
-    return [{'value': x['name'], 'displayValue': x['name']} for x in groups]
 
   def properties(self, integration_cloud='ic', url_ref='email-auth'):
     c = Properties.ComponentPropertyType
