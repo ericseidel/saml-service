@@ -38,7 +38,7 @@ def batch_delete():
   SamlSecurityAssertion().assert_has_role('admin')
   return Saml().batch_delete()
 
-@lumavate_route('/status', ['GET'], RequestType.api, [SecurityType.jwt])
+@lumavate_route('/status', ['POST', 'GET'], RequestType.api, [SecurityType.jwt])
 def status():
   return Saml().status()
 

@@ -3,4 +3,5 @@ docker service update \
  --with-registry-auth \
  --mount-add type=bind,source="$(pwd)"/app,destination=/app \
  --mount-add type=bind,source="$(pwd)"/../python-service-util,destination=/python_packages/lumavate_service_util \
- magiclink-16
+saml-85
+#--mount-add type=bind,source=/home/john/code/go-signer,destination=/go/src/github.com/Lumavate-Team/go-signer \
