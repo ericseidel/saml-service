@@ -27,7 +27,7 @@ class GroupEmail(db.Model):
     return {
       'id': make_id(self.id, self.__class__),
       'email': self._email.email if self._email else None,
-      'userId': make_id(self.id, 'user'),
+      'userId': make_id(self.email_id, 'user'),
       'group': self._group.name if self._group else None,
       'createdAt': self.created_at,
       'lastModifiedAt': self.last_modified_at
