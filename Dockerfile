@@ -13,8 +13,6 @@ ARG lumavate_request_branch=master
 ARG lumavate_properties_branch=master
 ARG lumavate_service_util=master
 
-COPY requirements.txt /
-
 RUN apt-get update && apt-get install -y git python3-pip libpq-dev libffi-dev libffi-dev xmlsec1 \
   && mkdir /root/.ssh/ \
   && touch /root/.ssh/known_hosts \
@@ -50,10 +48,34 @@ RUN apt-get update && apt-get install -y git python3-pip libpq-dev libffi-dev li
   && /git.sh -i /keys/python-service-util-rsa clone git@github.com:Lumavate-Team/python-service-util.git lumavate_service_util \
   && cd lumavate_service_util \
   && git checkout $lumavate_service_util_branch \
-  && rm -rf /python_packages/lumavate_service_util/.git \
-  && cd / \
-  && pip3 install -r requirements.txt \
-  && mkdir -p /app
+  && rm -rf /python_packages/lumavate_service_util/.git
+
+FROM python:3.7.1-alpine3.7
+
+EXPOSE 5000
+
+COPY --from=common /python_packages ./python_packages/
+COPY requirements.txt ./
+
+RUN apk add --no-cache \
+		postgresql-libs \
+  && apk add --no-cache --virtual .build-deps \
+		gcc \
+		git \
+		libc-dev \
+		libgcc \
+		linux-headers \
+		libffi-dev \
+		libressl-dev \
+		curl \
+		musl-dev \
+		postgresql-dev \
+	&& pip3 install -r requirements.txt \
+	&& rm -rf .git \
+	&& mkdir -p /app \
+	&& apk del .build-deps \
+	&& apk add --no-cache \
+		xmlsec
 
 ENV PYTHONPATH /python_packages
 WORKDIR /app
