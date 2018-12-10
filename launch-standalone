@@ -1,5 +1,5 @@
 DOCKER_IP=`ifconfig | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'`
-docker run --rm \
+docker run -d --rm \
  --mount type=bind,source="$(pwd)"/app,destination=/app \
  --mount type=bind,source="$(pwd)"/../python-service-util,destination=/python_packages/lumavate_service_util \
 -e "DATABASE_URL=postgresql://postgres:scorpion6@$DOCKER_IP:5432/saml" \
@@ -13,4 +13,4 @@ docker run --rm \
 -e "PROTO=https://" \
 --name=saml \
 -p 5005:5000 \
-lumavate-saml:develop gunicorn app:app -b 0.0.0.0:5000 --workers 1 --worker-class eventlet --reload
+saml:latest gunicorn app:app -b 0.0.0.0:5000 --workers 1 --worker-class eventlet --reload
