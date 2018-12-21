@@ -126,9 +126,22 @@ class Saml(RestBehavior):
 
   def sso(self):
     saml_client = self.get_saml_client()
-    authn_response = saml_client.parse_authn_request_response(
-        request.form['SAMLResponse'],
-        entity.BINDING_HTTP_POST)
+
+    try:
+      authn_response = saml_client.parse_authn_request_response(
+          request.form['SAMLResponse'],
+          entity.BINDING_HTTP_POST)
+    except Exception as e:
+      print('Parse Auth error: ' + str(e))
+      if g.service_data.get('errorPageLink') is not None:
+        url = g.service_data.get('errorPageLink', {}).get('url')
+        if not url.startswith('http'):
+          url = 'https://' + request.host + url
+        return redirect(url, 302)
+      else:
+        return 'SAML Error (please log out of Identity Provider and try again, or contact system administrator): ' + str(e)
+
+
     authn_response.get_identity()
     user_info = authn_response.get_subject()
 
@@ -492,6 +505,13 @@ page.  If unset the user will be sent to teh home page.
       'Login Page Link',
       'page-link',
       help_text=ht))
+
+    widget_props.append(Properties.Property(
+      'Advanced',
+      'Session Settings',
+      'errorPageLink',
+      'Error Page Link',
+      'page-link'))
 
     ################################
     # Microservice Dependencies
