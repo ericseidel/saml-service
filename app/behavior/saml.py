@@ -125,14 +125,24 @@ class Saml(RestBehavior):
     return response
 
   def sso(self):
-    saml_client = self.get_saml_client()
+    try:
+      saml_client = self.get_saml_client()
+    except Exception as e:
+      print('Parse Auth error: ' + str(e))
+      if g.service_data.get('errorPageLink') is not None:
+        url = g.service_data.get('errorPageLink', {}).get('url')
+        if not url.startswith('http'):
+          url = 'https://' + request.host + url
+        return redirect(url, 302)
+      else:
+        return 'SAML Error (please log out of Identity Provider and try again, or contact system administrator): ' + str(e)
 
     try:
       authn_response = saml_client.parse_authn_request_response(
           request.form['SAMLResponse'],
           entity.BINDING_HTTP_POST)
     except Exception as e:
-      print('Parse Auth error: ' + str(e))
+      print('Parse AuthN error: ' + str(e))
       if g.service_data.get('errorPageLink') is not None:
         url = g.service_data.get('errorPageLink', {}).get('url')
         if not url.startswith('http'):
