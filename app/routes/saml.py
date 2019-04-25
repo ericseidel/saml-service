@@ -18,7 +18,7 @@ def root():
 def login():
   return Saml().login()
 
-@lumavate_route('/sso', ['GET', 'POST'], RequestType.page, [SecurityType.jwt])
+@lumavate_route('/sso', ['GET', 'POST'], RequestType.page, [SecurityType.jwt, SecurityType.none])
 def sso():
   if request.method == 'GET':
     return Saml().login()
