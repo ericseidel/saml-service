@@ -10,7 +10,7 @@ ARG lumavate_signer_branch=master
 ARG lumavate_token_branch=master
 ARG lumavate_request_branch=master
 ARG lumavate_properties_branch=master
-ARG lumavate_service_util=master
+ARG lumavate_service_util_branch=master
 
 RUN apt-get update && apt-get install -y git python3-pip libpq-dev libffi-dev libffi-dev xmlsec1 \
   && mkdir /root/.ssh/ \
