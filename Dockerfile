@@ -3,8 +3,6 @@ FROM ubuntu:16.04 as common
 RUN apt-get update --fix-missing \
     && apt-get install -y wget git
 
-COPY keys keys
-
 ARG lumavate_exceptions_branch=master
 ARG lumavate_signer_branch=master
 ARG lumavate_token_branch=master
@@ -16,7 +14,6 @@ RUN apt-get update && apt-get install -y git python3-pip libpq-dev libffi-dev li
   && mkdir /root/.ssh/ \
   && touch /root/.ssh/known_hosts \
   && ssh-keyscan github.com >> /root/.ssh/known_hosts \
-  && chmod 400 /keys/* \
   && mkdir /python_packages \
   && cd /python_packages \
   && git clone https://github.com/LabelNexus/python-exceptions.git lumavate_exceptions \
