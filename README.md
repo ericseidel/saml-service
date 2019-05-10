@@ -13,7 +13,6 @@ The SAML Service is designed to be used as an Authnetication Microwervice that i
 | Login Page Link | page-link | After successfully logging in, this setting will direct the user to the appropriate page. |
 | Error Page Link | page-link | In case of an error during the login process, this setting will direct the user to the appropriate page. |
 | Profile Service Uri | text | If a profile service is identified, it will be notified that a user logged in, and the email address will be set automatically
-|
 
 ## Routes
 
