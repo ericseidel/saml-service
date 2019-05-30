@@ -1,6 +1,6 @@
 # SAML Service
 
-The SAML Service is designed to be used as an Authnetication Microwervice that is a configurable SAML Assertion toa given Identity Provider.
+The SAML Service is designed to be used as an Authnetication Microservice that is a configurable SAML Assertion to a given Identity Provider.
 
 ## Properties
 
